@@ -1,0 +1,39 @@
+{% extends 'threadApp/layout.html' %}
+
+{% block content %}
+<h2 style="text-align: center">{{title}}</h2>
+
+<form action="" method="GET">
+    Search: <input type="text" name="search_Post" placeholder="search..." value='{{ request.GET.search_Post }}'>
+    <input type="submit" value="Submit">
+</form>
+
+<h3>Public Posts</h3>
+<ul>
+    {% for thread in threads %}
+    {% if thread.thread_Exposer == "public" %}
+    <li>
+        <a href="/threadApp/details/{{thread.id}}">{{thread.thread_Name}}</a>
+        <a href="/threadApp/threadEdit/{{thread.id}}">Edit</a>
+        <a href="/threadApp/threadDelete/{{thread.id}}">Delete</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+</ul>
+
+<h3>Private Posts</h3>
+<ul>
+    {% for thread in threads %}
+    {% if thread.thread_Exposer == "private" %}
+    <li>
+        <a href="/threadApp/details/{{thread.id}}">{{thread.thread_Name}}</a>
+        <a href="/threadApp/threadEdit/{{thread.id}}">Edit</a>
+        <a href="/threadApp/threadDelete/{{thread.id}}">Delete</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+</ul>
+
+<a href="/threadApp/">Back</a>
+
+{% endblock %}

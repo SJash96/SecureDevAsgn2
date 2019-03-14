@@ -1,0 +1,11 @@
+{% extends 'threadApp/layout.html' %}
+
+{% block content %}
+<h2 style="text-align: center">{{title}}</h2>
+<form class="site-form" action="{% url 'threadApp:threadEdit' id=thread.id %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+<a href="/threadApp/">Back</a>
+{% endblock %}
