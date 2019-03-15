@@ -3,12 +3,13 @@ from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
 from django.contrib.auth import login, logout
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import csv
 
 from .models import Threads
 from .forms import EditProfileForm, CreateThreadForm, ExtendedUserCreationForm
 
 def index_v(request):
-    threads_list = Threads.objects.all()
+    threads_list = Threads.objects.all().order_by('-id')
     query = request.GET.get("search_Post")
     if query:
         threads_list = threads_list.filter(thread_Name__icontains=query)
@@ -59,6 +60,9 @@ def insertThread_v(request):
     
     return render(request, 'threadApp/createThread.html', context)
 
+def uploadThread_v(request):
+    pass
+
 def details_v(request, id):
     thread = Threads.objects.get(id=id)
 
@@ -93,6 +97,21 @@ def threadDelete_v(request, id):
     thread = Threads.objects.get(id=id)
     thread.delete()
     return redirect('threadApp:usersThread')
+
+def threadDownload_v(request, id):
+    thread = Threads.objects.get(id=id)
+
+    filename = str(thread.id) + ".txt"
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+
+    writer = csv.writer(response)
+    writer.writerow(['Thread Name:', thread.thread_Name])
+    writer.writerow(['Thread Owner:', thread.thread_Owner])
+    writer.writerow(['Thread Body:', thread.thread_Body])
+    writer.writerow(['Created At:', thread.created_At])
+
+    return response
 
 def signup_v(request):
     if request.method == 'POST':

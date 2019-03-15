@@ -17,7 +17,9 @@ urlpatterns = [
     url(r'^reset-password/done/', PasswordResetDoneView.as_view(), name='password_reset_done'),
     url(r'^reset-password/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     url(r'^createThread/', views.insertThread_v, name='createThread'),
+    url(r'^uploadThread/', views.uploadThread_v, name='uploadThread'),
     url(r'^usersThread/', views.usersThread_v, name='usersThread'),
     url(r'^threadEdit/(?P<id>\d+)/$', views.threadEdit_v, name='threadEdit'),
     url(r'^threadDelete/(?P<id>\d+)/$', views.threadDelete_v, name='threadDelete'),
+    url(r'^threadDownload/(?P<id>\d+)/$', views.threadDownload_v, name='threadDownload'),
 ]
