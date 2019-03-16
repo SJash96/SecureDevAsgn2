@@ -1,0 +1,9 @@
+{% extends 'threadApp/layout.html' %}
+
+{% block content %}
+<h2 style="text-align: center">{{thread.thread_Name}}</h2>
+<h3>Owner: {{thread.thread_Owner}}</h3>
+<h3>Details: {{thread.thread_Body}}</h3>
+<h3>Created At: {{thread.created_At}}</h3>
+<a href="/threadApp/">Back</a>
+{% endblock %}
