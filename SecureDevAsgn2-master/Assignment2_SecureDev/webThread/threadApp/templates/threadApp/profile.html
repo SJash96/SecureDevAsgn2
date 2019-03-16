@@ -1,0 +1,12 @@
+{% extends 'threadApp/layout.html' %}
+
+{% block content %}
+<h2 style="text-align: center">{{title}}</h2>
+<h3>Username: {{user.username}}</h3>
+<h3>First Name: {{user.first_name}}</h3>
+<h3>Last Name: {{user.last_name}}</h3>
+<h3>Email Address: {{user.email}}</h3>
+<a href="/threadApp/updateProf/">Update Profile</a>
+<a href="/threadApp/deleteProf/">Delete Profile</a>
+<a href="/threadApp/">Back</a>
+{% endblock %}
