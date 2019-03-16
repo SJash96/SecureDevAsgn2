@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
 from django.contrib.auth import login, logout
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import csv
 
+from pytz import timezone
+from datetime import datetime, timedelta
 from .models import Threads
 from .forms import EditProfileForm, CreateThreadForm, ExtendedUserCreationForm
 
@@ -22,8 +25,36 @@ def index_v(request):
     except EmptyPage:
         threads = paginator.page(paginator.num_pages)
 
+    delta = 0
+    for thread in threads:
+        if thread.thread_Expire == "10 mins":
+            delta = timedelta(minutes=10)
+        elif thread.thread_Expire == "1 hr":
+            delta = timedelta(hours=1)
+        elif thread.thread_Expire == "1 day":
+            delta = timedelta(days=1)
+        elif thread.thread_Expire == "1 week":
+            delta = timedelta(weeks=1)
+        
+        d = thread.created_At
+        d1 = d+delta
+
+        print(d)
+        print(d1)
+
+        expireTime = d1-datetime.now().replace(tzinfo=timezone('UTC'))
+
+        t = Threads.objects.get(id=thread.id)
+        t.thread_TillExpire = str(expireTime)
+        t.save()
+
+        if d1 < datetime.now().replace(tzinfo=timezone('UTC')):
+            Threads.objects.get(id=thread.id).delete()
+        else:
+            print("Not Expired")
+
     context = {
-        'title': 'Latest Threads',
+        'title': 'PROG 38263 SECURE SOFTWARE DEVELOPMENT',
         'threads': threads
     }
 
@@ -31,13 +62,37 @@ def index_v(request):
 
 def usersThread_v(request):
     threads_list = Threads.objects.filter(thread_Owner=request.user)
+    threads_inList = Threads.objects.filter(thread_Share=request.user)
     query = request.GET.get("search_Post")
     if query:
         threads_list = threads_list.filter(thread_Name__icontains=query)
 
+    delta = 0
+    for thread in threads_list:
+        if thread.thread_Expire == "10 mins":
+            delta = timedelta(minutes=10)
+        elif thread.thread_Expire == "1 hr":
+            delta = timedelta(hours=1)
+        elif thread.thread_Expire == "1 day":
+            delta = timedelta(days=1)
+        elif thread.thread_Expire == "1 week":
+            delta = timedelta(weeks=1)
+        
+        d = thread.created_At
+        d1 = d+delta
+        
+        expireTime = d1-datetime.now().replace(tzinfo=timezone('UTC'))
+        t = Threads.objects.get(id=thread.id)
+        t.thread_TillExpire = str(expireTime)
+        t.save()
+            
+        if d1 < datetime.now().replace(tzinfo=timezone('UTC')):
+            Threads.objects.get(id=thread.id).delete()
+
     context = {
         'title': 'Your Created Threads',
-        'threads': threads_list
+        'threads': threads_list,
+        'threadsInv': threads_inList
     }
 
     return render(request, 'threadApp/usersThread.html', context)
@@ -49,7 +104,9 @@ def insertThread_v(request):
             newThread = form.save(commit=False)
             newThread.thread_Owner = request.user
             newThread.save()
-            return redirect('threadApp:createThread')
+            if request.POST.get("thread_Share") is not None:
+                newThread.thread_Share.add(request.POST.get("thread_Share"))
+            return redirect('/threadApp/details/' + str(newThread.id))
     else:
         form = CreateThreadForm()
 
@@ -61,7 +118,27 @@ def insertThread_v(request):
     return render(request, 'threadApp/createThread.html', context)
 
 def uploadThread_v(request):
-    pass
+    
+    if request.method == 'POST' and request.FILES['threadDoc']:
+        myfile = request.FILES['threadDoc']
+        lines = myfile.read().decode("utf-8").split(", ")
+        form = CreateThreadForm(instance=Threads(thread_Name=lines[0], thread_Body=lines[1]))
+    else:
+        form = CreateThreadForm()
+        form.fields['thread_Name'].widget.attrs['readonly'] = True
+        form.fields['thread_Body'].widget.attrs['readonly'] = True
+        form.fields['thread_Exposer'].widget.attrs['disabled'] = True
+        form.fields['thread_Expire'].widget.attrs['disabled'] = True
+        form.fields['thread_Share'].widget.attrs['disabled'] = True
+        form.fields['created_At'].widget.attrs['readonly'] = True
+        
+    context = {
+        'title': 'Upload A File',
+        'form': form,
+        'info': 'File should be a .txt file and contents should be in format(ThreadName, ThreadBody)'
+    }
+
+    return render(request, 'threadApp/uploadFile.html', context)
 
 def details_v(request, id):
     thread = Threads.objects.get(id=id)
@@ -81,6 +158,8 @@ def threadEdit_v(request, id):
             thread = form.save(commit=False)
             thread.thread_Owner = request.user
             thread.save()
+            if request.POST.get("thread_Share") is not None:
+                thread.thread_Share.add(request.POST.get("thread_Share"))
             return redirect('threadApp:usersThread')
     else:
         form = CreateThreadForm(instance=thread)
@@ -106,10 +185,10 @@ def threadDownload_v(request, id):
     response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
 
     writer = csv.writer(response)
-    writer.writerow(['Thread Name:', thread.thread_Name])
-    writer.writerow(['Thread Owner:', thread.thread_Owner])
-    writer.writerow(['Thread Body:', thread.thread_Body])
-    writer.writerow(['Created At:', thread.created_At])
+    writer.writerow([thread.thread_Name])
+    writer.writerow([thread.thread_Owner])
+    writer.writerow([thread.thread_Body])
+    writer.writerow([thread.created_At])
 
     return response
 

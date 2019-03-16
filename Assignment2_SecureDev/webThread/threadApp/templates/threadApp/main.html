@@ -2,32 +2,39 @@
 
 {% block content %}
 
-<h2 style="text-align: center">{{title}}</h2>
+<U><h2 style="text-align: center">{{title}}</h2></U>
+<hr>
 
 {% if user.is_authenticated %}
 
-<h3 style="text-align: right">
+<h3 style="text-align: left">
     Welcome: {{ user.username }}
+</h3>
+<p align="left">
     <a href="/threadApp/profile/">Account Settings</a>
+</p>
     <form action="{% url 'threadApp:logout' %}" method="POST">
         {% csrf_token %}
         <button type="submit">Logout</button>
     </form>
-</h3>
 
+<hr>
 <form action="" method="GET">
     Search: <input type="text" name="search_Post" placeholder="search..." value='{{ request.GET.search_Post }}'>
     <input type="submit" value="Submit">
 </form>
 
-<a href="/threadApp/createThread/">Create Thread</a>
-<a href="/threadApp/uploadThread">Upload Thread</a>
-<a href="/threadApp/usersThread/">All {{ user.username }} Threads</a>
-
+<ul>
+    <li><a href="/threadApp/createThread/">Create Thread</a> </li>
+    <li><a href="/threadApp/uploadThread">Upload Thread</a> </li>
+    <li><a href="/threadApp/usersThread/">All {{ user.username }} Threads</a> </li>
+</ul>
+<hr>
+<h4> <u> Public Posts </u> </h4> 
 <ul>
     {% for thread in threads %}
     {% if thread.thread_Exposer == "public" %}
-    <li><a href="/threadApp/details/{{thread.id}}">{{thread.thread_Name}}</a></li>
+    <li><i>Expires in {{thread.thread_TillExpire}}</i> <a href="/threadApp/details/{{thread.id}}">{{thread.thread_Name}}</a></li>
     {% endif %}
     {% endfor %}
 </ul>
@@ -51,9 +58,18 @@
 </div>
 
 {% else %}
+<hr>
 
-<h3 style="text-align: right"><a href="/threadApp/signup">Register</a> <a href="/threadApp/login">Login</a></h3>
+<h3 style="text-align: left">
+        Welcome: Guest
+</h3>
+<p> Hi, Try out the pasting website. Login or Register using the link below:</p>
+<h5 style="text-align: left"><a href="/threadApp/signup">Register</a> 
+<br>
+<a href="/threadApp/login">Login</a></h5>
 
+<hr><hr>
+<h4> <u> Public Posts </u> </h4> 
 <ul>
     {% for thread in threads %}
     {% if thread.thread_Exposer == "public" %}

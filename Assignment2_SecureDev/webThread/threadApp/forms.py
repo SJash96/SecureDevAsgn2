@@ -49,6 +49,7 @@ expire_time = [
     ('1 hr', '1 Hour'),
     ('1 day', '1 Day'),
     ('1 week', '1 Week'),
+    ('Never', 'Never'),
 ]
 
 expose = [
@@ -58,11 +59,13 @@ expose = [
 
 class CreateThreadForm(forms.ModelForm):
 
+    thread_Share = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple, queryset=User.objects.all(), required=False)
     class Meta:
         model = Threads
         fields = ['thread_Name', 'thread_Body', 'thread_Exposer', 'thread_Expire', 'thread_Share', 'created_At']
         widgets = {
             'thread_Body' : forms.Textarea,
             'thread_Exposer' : forms.Select(choices=expose),
-            'thread_Expire' : forms.Select(choices=expire_time)
+            'thread_Expire' : forms.Select(choices=expire_time),
+            
         }
