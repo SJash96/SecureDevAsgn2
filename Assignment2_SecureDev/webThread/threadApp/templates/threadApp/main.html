@@ -27,7 +27,7 @@
 <ul>
     {% for thread in threads %}
     {% if thread.thread_Exposer == "public" %}
-    <li><a href="/threadApp/details/{{thread.id}}">{{thread.thread_Name}}</a></li>
+    <li><i>Expires in {{thread.thread_TillExpire}}</i> <a href="/threadApp/details/{{thread.id}}">{{thread.thread_Name}}</a></li>
     {% endif %}
     {% endfor %}
 </ul>

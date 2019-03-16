@@ -56,6 +56,8 @@ expose = [
     ('private', 'Private'),
 ]
 
+users_list = User.objects.all()
+
 class CreateThreadForm(forms.ModelForm):
 
     class Meta:
@@ -65,4 +67,5 @@ class CreateThreadForm(forms.ModelForm):
             'thread_Body' : forms.Textarea,
             'thread_Exposer' : forms.Select(choices=expose),
             'thread_Expire' : forms.Select(choices=expire_time)
+            'thread_Share' : forms.Select(choices=user_list)
         }
