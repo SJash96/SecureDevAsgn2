@@ -1,0 +1,17 @@
+{% extends 'threadApp/layout.html' %}
+
+{% block content %}
+<h2 style="text-align: center">{{title}}</h2>
+<form class="site-form" action="{% url 'threadApp:uploadThread' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="threadDoc">
+    <input type="submit" value="Upload">
+</form>
+<h4>{{info}}</h4>
+<form class="site-form" action="{% url 'threadApp:createThread' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+<a href="/threadApp/">Back</a>
+{% endblock %}
